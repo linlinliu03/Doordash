@@ -5,7 +5,7 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 
 public class Main {
     public static void main(String[] args) {
-        // create tables
+        // create spring context
         ApplicationContext applicationContext = new AnnotationConfigApplicationContext(ApplicationConfig.class);
     }
 }

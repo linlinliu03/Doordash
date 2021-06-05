@@ -12,10 +12,44 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class CustomerDao {
 
+    @Autowired
+    private SessionFactory sessionFactory;
+
     public void signUp(Customer customer) {
+        Authorities authorities = new Authorities();
+        authorities.setAuthorities("ROLE_USER");
+        authorities.setEmail(customer.getEmail());
+
+        Session session = null;
+        try {
+            // make one transaction
+            session = sessionFactory.openSession();
+            session.beginTransaction();
+            session.save(authorities);
+            session.save(customer);
+            session.getTransaction().commit();
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            session.getTransaction().rollback();
+        } finally {
+            if (session != null) {
+                session.close();
+            }
+        }
     }
 
     public Customer getCustomer(String email) {
-        return new Customer();
+        Customer customer = null;
+        try (Session session = sessionFactory.openSession()) {
+            // find Customer table
+            Criteria criteria = session.createCriteria(Customer.class);
+            // conver Object type to Customer type
+            customer = (Customer) criteria.add(Restrictions.eq("email", email)).uniqueResult();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return customer;
     }
 }
+
